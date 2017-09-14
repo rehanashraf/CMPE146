@@ -48,6 +48,8 @@ public:
 
      	//		For Internal Switch and Led Circuit
      	(LPC_GPIO2->FIOPIN & (1 << 0 )) ? LPC_GPIO2->FIOCLR = (1 << 1) : LPC_GPIO2->FIOSET = (1 << 1);
+
+
      	//		For External Switch and Led Circuit
      	(LPC_GPIO1->FIOPIN & (1 << 14) ) ? LPC_GPIO1->FIOCLR = (1 << 4) : LPC_GPIO1->FIOSET = (1 << 4);
 

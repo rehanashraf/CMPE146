@@ -276,7 +276,7 @@ DSTATUS flash_initialize()
     return (0 == g_flash_pagesize) ? FR_DISK_ERR : FR_OK;
 }
 
-DRESULT flash_read_sectors(unsigned char *pData, int sectorNum, int sectorCount)
+ DRESULT flash_read_sectors(unsigned char *pData, int sectorNum, int sectorCount)
 {
     uint32_t addr = (sectorNum * FLASH_SECTOR_SIZE);
 
@@ -300,7 +300,7 @@ DRESULT flash_read_sectors(unsigned char *pData, int sectorNum, int sectorCount)
     return RES_OK;
 }
 
-DRESULT flash_write_sectors(unsigned char *pData, int sectorNum, int sectorCount)
+ DRESULT flash_write_sectors(unsigned char *pData, int sectorNum, int sectorCount)
 {
     uint32_t addr = (sectorNum * FLASH_SECTOR_SIZE);
 
@@ -319,7 +319,7 @@ DRESULT flash_write_sectors(unsigned char *pData, int sectorNum, int sectorCount
     return RES_OK;
 }
 
-DRESULT flash_ioctl(BYTE ctrl,void *buff)
+ DRESULT flash_ioctl(BYTE ctrl,void *buff)
 {
     DRESULT status = RES_PARERR;
 
@@ -366,7 +366,7 @@ DRESULT flash_ioctl(BYTE ctrl,void *buff)
     return status;
 }
 
-void flash_write_permanent_id(char *id_64bytes)
+ void flash_write_permanent_id(char *id_64bytes)
 {
     char id_bytes[64] = { 0 };
     memcpy(id_bytes, id_64bytes, sizeof(id_bytes));
@@ -378,7 +378,7 @@ void flash_write_permanent_id(char *id_64bytes)
     }
 }
 
-void flash_read_permanent_id(char *id_64bytes)
+ void flash_read_permanent_id(char *id_64bytes)
 {
     CHIP_SELECT_OP()
     {
@@ -401,12 +401,12 @@ uint32_t flash_get_page_size(void)
     return g_flash_pagesize;
 }
 
-bool flash_supports_metadata(void)
+ bool flash_supports_metadata(void)
 {
     return (0 != (g_flash_pagesize % FLASH_PAGESIZE_256));
 }
 
-uint32_t flash_get_page_write_count(uint32_t page_number)
+extern uint32_t flash_get_page_write_count(uint32_t page_number)
 {
     /* Metadata is at the end of the page */
     const uint32_t page_addr = (page_number << FLASH_PAGENUM_BIT_OFFSET);
@@ -425,7 +425,7 @@ uint32_t flash_get_page_write_count(uint32_t page_number)
     return (UINT32_MAX == write_counter) ? 0 : write_counter;
 }
 
-void flash_chip_erase(void)
+extern void flash_chip_erase(void)
 {
     unsigned char chip_erase[] = { 0xC7, 0x94, 0x80, 0x9A };
 

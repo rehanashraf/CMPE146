@@ -24,6 +24,7 @@
  *
  */
 #include <gpiolab.h>
+#include <spilab.h>
 #include "tasks.hpp"
 #include "examples/examples.hpp"
 
@@ -54,8 +55,9 @@ int main(void)
      * such that it can save remote control codes to non-volatile memory.  IR remote
      * control codes can be learned by typing the "learn" terminal command.
      */
-
+//	flash_read_sectors();
     scheduler_add_task(new gpio_lab_demo);
+    scheduler_add_task(new spi_lab);
     scheduler_add_task(new terminalTask(PRIORITY_HIGH));
 
     /* Consumes very little CPU, but need highest priority to handle mesh network ACKs */
