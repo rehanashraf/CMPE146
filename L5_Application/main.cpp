@@ -27,7 +27,10 @@
 #include <spilab.h>
 #include "tasks.hpp"
 #include "examples/examples.hpp"
-
+#include "uartlab.h"
+#include "eintlab.h"
+#include "i2clab.h"
+#include "uart0_min.h"
 /**
  * The main() creates tasks or "threads".  See the documentation of scheduler_task class at scheduler_task.hpp
  * for details.  There is a very simple example towards the beginning of this class's declaration.
@@ -43,6 +46,23 @@
  *        there is no semaphore configured for this bus and it should be used exclusively by nordic wireless.
  */
 
+void Task1(void *p)
+{
+	while(1)
+	{
+		uart0_puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+		vTaskDelay(50);
+	}
+}
+void Task2(void *p)
+{
+	while(1)
+	{
+		uart0_puts("bbbbbbbbbbbbbbbb");
+		vTaskDelay(50);
+	}
+
+}
 int main(void)
 {
     /**
@@ -55,9 +75,21 @@ int main(void)
      * such that it can save remote control codes to non-volatile memory.  IR remote
      * control codes can be learned by typing the "learn" terminal command.
      */
-//	flash_read_sectors();
-    scheduler_add_task(new gpio_lab_demo);
-    scheduler_add_task(new spi_lab);
+
+//    scheduler_add_task(new gpio_lab_demo);
+//    scheduler_add_task(new spi_lab);
+//    scheduler_add_task(new uart_lab);
+	scheduler_add_task(new i2c_lab);
+//	scheduler_add_task(new eint_lab);
+	TaskHandle_t xTask1;
+	TaskHandle_t xTask2;
+	xTaskCreate(Task1, "task1", STACK_BYTES(2048), 0, 1, 0);
+	xTaskCreate(Task2, "task2", STACK_BYTES(2048), 0, 1, 0);
+	vTaskStartScheduler();
+
+
+
+
     scheduler_add_task(new terminalTask(PRIORITY_HIGH));
 
     /* Consumes very little CPU, but need highest priority to handle mesh network ACKs */

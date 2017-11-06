@@ -23,7 +23,7 @@ public:
 
  //		GPIO Switch SW2 output P1.14
      	LPC_PINCON->PINSEL2 &= ~(3 << 28);
-     	LPC_GPIO1->FIODIR &= ~(1 << 14); //pin ten
+     	LPC_GPIO1->FIODIR &= ~(1 << 14); //pin 14
  //		GPIO LED LED7 input P1.4
      	LPC_PINCON->PINSEL2 &= ~(3 << 8);
      	LPC_GPIO1->FIODIR  |= (1 << 4);// pin 4 port 1
@@ -46,12 +46,12 @@ public:
  //        //LPC_GPIO1->FIOCLR = (1 << 1);
  //        vTaskDelay(1000);
 
-     	//		For Internal Switch and Led Circuit
-     	(LPC_GPIO2->FIOPIN & (1 << 0 )) ? LPC_GPIO2->FIOCLR = (1 << 1) : LPC_GPIO2->FIOSET = (1 << 1);
-
-
      	//		For External Switch and Led Circuit
-     	(LPC_GPIO1->FIOPIN & (1 << 14) ) ? LPC_GPIO1->FIOCLR = (1 << 4) : LPC_GPIO1->FIOSET = (1 << 4);
+//     	(LPC_GPIO2->FIOPIN & (1 << 0)) ? LPC_GPIO2->FIOSET = (1 << 1), printf("External Switch is pressed.\n") : LPC_GPIO2->FIOCLR = (1 << 1);
+
+
+     	//		For Internal Switch and Led Circuit
+     	(LPC_GPIO1->FIOPIN & (1 << 14) ) ? LPC_GPIO1->FIOCLR = (1 << 4), printf("Internal Switch is pressed.\n") : LPC_GPIO1->FIOSET = (1 << 4);
 
          return true;
      }

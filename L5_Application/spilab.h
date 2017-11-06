@@ -24,17 +24,21 @@ public:
     	LPC_PINCON->PINSEL0 &= ~(0xFF << 12);
     	LPC_PINCON->PINSEL0 |= (0xA8 << 12);
 
+     	LPC_PINCON->PINSEL4 &= ~(3);
+     	LPC_GPIO2->FIODIR |= (1);
+
     	//setting P0.6 as output for CS for the Flash
-    	LPC_GPIO0->FIODIR = (1 << 6);
+    	LPC_GPIO0->FIODIR |= (1 << 6);
 
 
     	LPC_SC->PCONP |= (1 << 10); //Power on
     	LPC_SC->PCLKSEL0 &= ~(3 << 20); //setting PCLK_SSP1 to 00
-    	LPC_SC->PCLKSEL0 |= (1 << 20); // setting PCLK_SSP1 to 01 for clock to be CCLK which should be 24MHz
+//    	LPC_SC->PCLKSEL0 |= (1 << 20); // setting PCLK_SSP1 to 01 for clock to be CCLK which should be 24MHz
 
     	LPC_SSP1->CR0 = 7; // setting bit transfer to 8 bits 0111 as said in datasheet
     	LPC_SSP1->CR1 &= ~(3 << 1); // enabling ssp controller and setting ssp as master
     	LPC_SSP1->CR1 |= (1 << 1);
+    	LPC_SSP1->CPSR = 128;
 
     	return true;
     }
@@ -44,11 +48,15 @@ public:
     void select_flash()
     {
     	LPC_GPIO0->FIOCLR = (1 << 6);
+    	LPC_GPIO2->FIOCLR = (1 << 0);
+    	printf("selecetd flash\n");
     }
 
     void deselect_flash()
     {
     	LPC_GPIO0->FIOSET = (1 << 6);
+    	LPC_GPIO2->FIOSET = (1 << 0);
+    	printf("deselected flash\n");
     }
 
     uint8_t ssp_exchange(uint8_t out)
@@ -64,14 +72,19 @@ public:
     	out = (0x9F);
     	select_flash();
     	in = ssp_exchange(out);
-    	printf("Data send to Flash is  0x%02x. \n", out);
+    	printf("Data send to Flash is  0x%(hex). \n", out);
 //    	printf("Data got back is 0x%02x. \n", in);
-    	vTaskDelay(1000);
+  //  	vTaskDelay(1000);
     	out = (0x1F);
     	in = ssp_exchange(out);
 //    	printf("Data send to Flash is 0x%02x. \n", out);
     	printf("Data got back from Flash is  0x%02x. \n", in);
-    	vTaskDelay(1000);
+   // 	vTaskDelay(1000);
+    	out = (0xD7);
+    	in = ssp_exchange(out);
+    	in = ssp_exchange(out);
+//    	printf("Data send to Flash is 0x%02x. \n", out);
+    	printf("Data got back from Flash is  0x%02x. \n", in);
     	deselect_flash();
     	vTaskDelay(2500);
 
