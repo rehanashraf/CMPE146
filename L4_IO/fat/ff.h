@@ -16,6 +16,7 @@
 
 #ifndef _FATFS
 #define _FATFS	8051	/* Revision ID */
+#include "stdio.h"
 
 #ifdef __cplusplus
 extern "C" {

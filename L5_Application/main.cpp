@@ -31,6 +31,16 @@
 #include "eintlab.h"
 #include "i2clab.h"
 #include "uart0_min.h"
+#include "stdio.h"
+//extern "C"{
+#include "ff.h"
+#include "io.hpp"
+#include "storage.hpp"
+#include "string.h"
+//}//#include "ffconf.h"
+
+FATFS FatFs;
+
 /**
  * The main() creates tasks or "threads".  See the documentation of scheduler_task class at scheduler_task.hpp
  * for details.  There is a very simple example towards the beginning of this class's declaration.
@@ -54,6 +64,7 @@ void Task1(void *p)
 		vTaskDelay(50);
 	}
 }
+
 void Task2(void *p)
 {
 	while(1)
@@ -63,6 +74,37 @@ void Task2(void *p)
 	}
 
 }
+FRESULT scan_files (
+    char* path        /* Start node to be scanned (***also used as work area***) */
+)
+{
+    FRESULT res;
+    DIR dir;
+    UINT i;
+    static FILINFO fno;
+
+
+    res = f_opendir(&dir, path);                       /* Open the directory */
+    if (res == FR_OK) {
+        for (;;) {
+            res = f_readdir(&dir, &fno);                   /* Read a directory item */
+            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
+            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
+                i = strlen(path);
+                sprintf(&path[i], "/%s", fno.fname);
+                res = scan_files(path);                    /* Enter the directory */
+                if (res != FR_OK) break;
+                path[i] = 0;
+            } else {                                       /* It is a file. */
+                printf("%s%s\n", path, fno.fname);
+            }
+        }
+        f_closedir(&dir);
+    }
+
+    return res;
+}
+
 int main(void)
 {
     /**
@@ -79,12 +121,91 @@ int main(void)
 //    scheduler_add_task(new gpio_lab_demo);
 //    scheduler_add_task(new spi_lab);
 //    scheduler_add_task(new uart_lab);
-	scheduler_add_task(new i2c_lab);
+//	scheduler_add_task(new i2c_lab);
 //	scheduler_add_task(new eint_lab);
-	TaskHandle_t xTask1;
-	TaskHandle_t xTask2;
-	xTaskCreate(Task1, "task1", STACK_BYTES(2048), 0, 1, 0);
-	xTaskCreate(Task2, "task2", STACK_BYTES(2048), 0, 1, 0);
+
+
+    FIL fil;        /* File object */
+    char line[10]; /* Line buffer */
+    FRESULT fr;     /* FatFs return code */
+    static FILINFO fno;
+
+    /* Register work area to the default drive */
+//    f_mount(&FatFs, "1:", 0);
+
+    /* Open a text file */
+//    fr = f_open(&fil, "1:3Peg.mp3", FA_READ);
+//    if (fr) return (int)fr;
+
+    /* Read all lines and display it */
+//    int i =0;
+//    while (f_gets(line, sizeof line, &fil)) {
+//        printf(line);
+////        puts((char*) i);
+////        i++;
+////    }
+//       fr = f_stat("1:3Peg.mp3", &fno);
+//    switch (fr) {
+//
+//    case FR_OK:
+//        printf("Size: %lu\n", fno.fsize);
+//        printf("Timestamp: %u/%02u/%02u, %02u:%02u\n",
+//               (fno.fdate >> 9) + 1980, fno.fdate >> 5 & 15, fno.fdate & 31,
+//               fno.ftime >> 11, fno.ftime >> 5 & 63);
+//        printf("Attributes: %c%c%c%c%c\n",
+//               (fno.fattrib & AM_DIR) ? 'D' : '-',
+//               (fno.fattrib & AM_RDO) ? 'R' : '-',
+//               (fno.fattrib & AM_HID) ? 'H' : '-',
+//               (fno.fattrib & AM_SYS) ? 'S' : '-',
+//               (fno.fattrib & AM_ARC) ? 'A' : '-');
+//        break;
+//
+//    case FR_NO_FILE:
+//        printf("It is not exist.\n");
+//        break;
+//
+//    default:
+//        printf("An error occured. (%d)\n", fr);
+//    }
+
+    /* Close the file */
+//    f_close(&fil);
+
+    FATFS fs;
+    FRESULT res;
+    char buff[256];
+
+
+    res = f_mount(&fs, "1:", 1);
+    if (res == FR_OK) {
+        strcpy(buff, "1:");
+        res = scan_files(buff);
+    }
+
+    printf("Hello Rehan\n");
+
+//    uint8_t data[1000] = { 0 };
+//    Storage::read("1:3Peg.mp3", data, sizeof(data)-1);
+//
+//
+//	for (int i =0; i < 1000 ; i++)
+//	{
+//		if (i%4==0)
+//		{
+//			printf(" ");
+//		}
+//		if (i%64==0)
+//		{
+//			printf("\n");
+//		}
+//		printf("%02X", (unsigned char)data[i]);
+//
+//	}
+
+//	TaskHandle_t xTask1;
+//	TaskHandle_t xTask2;
+//	xTaskCreate(Task1, "task1", STACK_BYTES(2048), 0, 1, 0);
+//	xTaskCreate(Task2, "task2", STACK_BYTES(2048), 0, 1, 0);
 	vTaskStartScheduler();
 
 
@@ -164,3 +285,4 @@ int main(void)
     scheduler_start(); ///< This shouldn't return
     return -1;
 }
+
