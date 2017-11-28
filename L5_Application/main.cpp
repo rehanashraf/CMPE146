@@ -32,14 +32,16 @@
 #include "i2clab.h"
 #include "uart0_min.h"
 #include "stdio.h"
+#include "sdcard.h"
 //extern "C"{
 #include "ff.h"
 #include "io.hpp"
 #include "storage.hpp"
 #include "string.h"
+
 //}//#include "ffconf.h"
 
-FATFS FatFs;
+
 
 /**
  * The main() creates tasks or "threads".  See the documentation of scheduler_task class at scheduler_task.hpp
@@ -74,36 +76,36 @@ void Task2(void *p)
 	}
 
 }
-FRESULT scan_files (
-    char* path        /* Start node to be scanned (***also used as work area***) */
-)
-{
-    FRESULT res;
-    DIR dir;
-    UINT i;
-    static FILINFO fno;
-
-
-    res = f_opendir(&dir, path);                       /* Open the directory */
-    if (res == FR_OK) {
-        for (;;) {
-            res = f_readdir(&dir, &fno);                   /* Read a directory item */
-            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
-                i = strlen(path);
-                sprintf(&path[i], "/%s", fno.fname);
-                res = scan_files(path);                    /* Enter the directory */
-                if (res != FR_OK) break;
-                path[i] = 0;
-            } else {                                       /* It is a file. */
-                printf("%s%s\n", path, fno.fname);
-            }
-        }
-        f_closedir(&dir);
-    }
-
-    return res;
-}
+//FRESULT scan_files (
+//    char* path        /* Start node to be scanned (***also used as work area***) */
+//)
+//{
+//    FRESULT res;
+//    DIR dir;
+//    UINT i;
+//    static FILINFO fno;
+//
+//
+//    res = f_opendir(&dir, path);                       /* Open the directory */
+//    if (res == FR_OK) {
+//        for (;;) {
+//            res = f_readdir(&dir, &fno);                   /* Read a directory item */
+//            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
+//            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
+//                i = strlen(path);
+//                sprintf(&path[i], "/%s", fno.fname);
+//                res = scan_files(path);                    /* Enter the directory */
+//                if (res != FR_OK) break;
+//                path[i] = 0;
+//            } else {                                       /* It is a file. */
+//                printf("%s%s\n", path, fno.fname);
+//            }
+//        }
+//        f_closedir(&dir);
+//    }
+//
+//    return res;
+//}
 
 int main(void)
 {
@@ -121,14 +123,17 @@ int main(void)
 //    scheduler_add_task(new gpio_lab_demo);
 //    scheduler_add_task(new spi_lab);
 //    scheduler_add_task(new uart_lab);
-//	scheduler_add_task(new i2c_lab);
-//	scheduler_add_task(new eint_lab);
+// 	  scheduler_add_task(new i2c_lab);
+//	  scheduler_add_task(new eint_lab);
+//	char** list = (char**)malloc(20);
+//	scheduler_add_task(new sdcard(list));
+	scheduler_add_task(new sdcard);
 
-
-    FIL fil;        /* File object */
-    char line[10]; /* Line buffer */
-    FRESULT fr;     /* FatFs return code */
-    static FILINFO fno;
+//	FATFS FatFs;
+//    FIL fil;        /* File object */
+//    char line[10]; /* Line buffer */
+//    FRESULT fr;     /* FatFs return code */
+//    static FILINFO fno;
 
     /* Register work area to the default drive */
 //    f_mount(&FatFs, "1:", 0);
@@ -171,16 +176,16 @@ int main(void)
     /* Close the file */
 //    f_close(&fil);
 
-    FATFS fs;
-    FRESULT res;
-    char buff[256];
-
-
-    res = f_mount(&fs, "1:", 1);
-    if (res == FR_OK) {
-        strcpy(buff, "1:");
-        res = scan_files(buff);
-    }
+//    FATFS fs;
+//    FRESULT res;
+//    char buff[256];
+//
+//
+//    res = f_mount(&fs, "1:", 1);
+//    if (res == FR_OK) {
+//        strcpy(buff, "1:");
+//        res = scan_files(buff);
+//    }
 
     printf("Hello Rehan\n");
 
@@ -206,7 +211,7 @@ int main(void)
 //	TaskHandle_t xTask2;
 //	xTaskCreate(Task1, "task1", STACK_BYTES(2048), 0, 1, 0);
 //	xTaskCreate(Task2, "task2", STACK_BYTES(2048), 0, 1, 0);
-	vTaskStartScheduler();
+
 
 
 
@@ -216,13 +221,15 @@ int main(void)
     /* Consumes very little CPU, but need highest priority to handle mesh network ACKs */
     scheduler_add_task(new wirelessTask(PRIORITY_CRITICAL));
 
+//	vTaskStartScheduler();
+
     /* Change "#if 0" to "#if 1" to run period tasks; @see period_callbacks.cpp */
     #if 0
     scheduler_add_task(new periodicSchedulerTask());
     #endif
 
     /* The task for the IR receiver */
-    // scheduler_add_task(new remoteTask  (PRIORITY_LOW));
+     scheduler_add_task(new remoteTask  (PRIORITY_LOW));
 
     /* Your tasks should probably used PRIORITY_MEDIUM or PRIORITY_LOW because you want the terminal
      * task to always be responsive so you can poke around in case something goes wrong.

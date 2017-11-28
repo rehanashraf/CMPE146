@@ -13,16 +13,22 @@
 #include "examples/examples.hpp"
 #include "stdio.h"
 #include "ff.h"
+#include "string.h"
 
 class sdcard : public scheduler_task
 {
 public:
-	sdcard(char** list): scheduler_task("sdcard", 2000, PRIORITY_LOW) {  songlist = list;/* constructor code */ };
+//	sdcard(char** list): scheduler_task("sdcard", 2000, PRIORITY_HIGH) {  songlist = list;/* constructor code */
+//	printf("In sdcard constructor\n");};
+	sdcard() : scheduler_task("sdcard", 2000, PRIORITY_HIGH) {printf("In sdcard constructor\n");};
+
 
     bool init(void);
     bool run(void *p);
 private:
     char** songlist= NULL;
+//    FRESULT scan_files (char* path);
+
 
 };
 

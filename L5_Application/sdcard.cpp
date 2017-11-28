@@ -7,23 +7,6 @@
 
 #include "sdcard.h"
 
-bool sdcard::init(void)
-{
-
-	return true;
-
-}
-
-bool sdcard::run(void *p)
-{
-	return true;
-}
-
-void getsonglist()
-{
-
-}
-
 FRESULT scan_files (
     char* path        /* Start node to be scanned (***also used as work area***) */
 )
@@ -54,3 +37,39 @@ FRESULT scan_files (
 
     return res;
 }
+
+
+bool sdcard::init(void)
+{
+
+    FIL fil;        /* File object */
+    FRESULT res;     /* FatFs return code */
+    static FILINFO fno;
+    FATFS fs;
+    char path[256];
+
+
+    res = f_mount(&fs, "1:", 1);
+//    if (res == FR_OK) {
+        strcpy(path, "1:");
+        res = scan_files(path);
+
+//    }
+	printf("I am in sadcard init.\n");
+
+	return true;
+
+}
+
+bool sdcard::run(void *p)
+{
+//	printf("I am in sdcard run.\n");
+	return true;
+}
+
+void getsonglist()
+{
+
+}
+
+
