@@ -42,21 +42,121 @@ FRESULT scan_files (
 bool sdcard::init(void)
 {
 
+
     FIL fil;        /* File object */
-    FRESULT res;     /* FatFs return code */
+//    FRESULT res;     /* FatFs return code */
     static FILINFO fno;
-    FATFS fs;
+//    FATFS fs;
     char path[256];
-
-
-    res = f_mount(&fs, "1:", 1);
+//    res = f_mount(&fs, "1:", 1);
 //    if (res == FR_OK) {
         strcpy(path, "1:");
-        res = scan_files(path);
+//        res = scan_files(path);
 
 //    }
-	printf("I am in sadcard init.\n");
+    FRESULT fr;
+    fr = f_stat("1:3Peg.mp3", &fno);
+    long int totalsize = fno.fsize;
+//    int totalsize = 1024;
+    printf("total size of the file is %i. \n", totalsize);
+    printf("buffersize is %i.\n", buffersize);
+	uint8_t data[buffersize] = { 0 };
+	    fr = f_open(&fil, "1:3Peg.mp3", FA_READ);
+//	    Storage::read("1:newtext.txt", data, sizeof(data)-1);
+	    UINT size=0;
+	    UINT offset = 0;
+	    int endReadeSize = totalsize%buffersize;
+	    int loopsize = totalsize/buffersize;
+	    int readsize = buffersize;
+	    for(int i = 0; i < loopsize +1 ; i++)
+	    {
+	    	f_lseek(&fil, offset);
+//	    	printf("offset is %u, \n", offset);
+	    	f_read(&fil,data, readsize, &size);
+	    	char hhh;
+//	    	printf("size is %u.\n", size);
+	    		    		for (UINT j =0; j < size ; j++)
+	    		    		{
+//	    		    			if (j%4==0)
+//	    		    			{
+////	    		    				printf(" ");
+//	    		    				char hh = ' ';
+//	    		    				Storage::append("1:myfile.txt", &hh, sizeof(hh), 0);
+//	    		    			}
+//	    		    			if (j%64==0)
+//	    		    			{
+////	    		    				printf("\n");
+//	    		    				char hh1 [2]= "\n";
+//	    		    				Storage::append("1:myfile.txt", &hh1, sizeof(hh1), 0);
+//	    		    			}
+////	    		    			printf("%02X", (unsigned char)data[j]);
+//	    		    			sprintf(&hhh, "%02X", data[j]);
+	    		    			hhh = data[j];
+	    		    			Storage::append("1:myfile1.txt", &hhh, 1, 0);
+	    		    		}
+	    		    offset += buffersize;
 
+	    }
+	    printf("Writing data is done. \n");
+	    f_close(&fil);
+//	    for(int j =0; j < 1; j ++)
+//	    {
+//	    		for (int i =0; i < 512 ; i++)
+//	    		{
+//	    			if (i%4==0)
+//	    			{
+//	    				printf(" ");
+//	    			}
+//	    			if (i%64==0)
+//	    			{
+//	    				printf("\n");
+//	    			}
+//	    			printf("%02X", (unsigned char)data[i]);
+//	    		}
+//	    }
+
+//	//    FIL fil;        /* File object */
+//	    char line[10]; /* Line buffer */
+//	    FRESULT fr;     /* FatFs return code */
+//	//    static FILINFO fno;
+//	    fr = f_open(&fil, "1:3Peg.mp3", FA_READ);
+//	    if (fr) return (int)fr;
+//
+//	    /* Read all lines and display it */
+////	    int i =0;
+//	    while (f_gets(line, sizeof line, &fil)) {
+//    		for (int i =0; i < 10 ; i++)
+//    		{
+//    			if (i%4==0)
+//    			{
+//    				printf(" ");
+//    			}
+//    			if (i%64==0)
+//    			{
+//    				printf("\n");
+//    			}
+//    			printf("%02X", (unsigned char)line[i]);
+//
+//    		}
+//	        printf(line);
+//	        puts((char*) i);
+//	        i++;
+//	    }
+//	    fr = f_stat("1:3Peg.mp3", &fno);
+//	    f_gets(line, 1000, &fil);
+//	    		for (int i =0; i < 900 ; i++)
+//	    		{
+//	    			if (i%4==0)
+//	    			{
+//	    				printf(" ");
+//	    			}
+//	    			if (i%64==0)
+//	    			{
+//	    				printf("\n");
+//	    			}
+//	    			printf("%02X", (unsigned char)line[i]);
+//
+//	    		}
 	return true;
 
 }

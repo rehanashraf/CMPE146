@@ -38,6 +38,7 @@
 #include "io.hpp"
 #include "storage.hpp"
 #include "string.h"
+#include "i2c2.hpp"
 
 //}//#include "ffconf.h"
 
@@ -74,38 +75,8 @@ void Task2(void *p)
 		uart0_puts("bbbbbbbbbbbbbbbb");
 		vTaskDelay(50);
 	}
-
 }
-//FRESULT scan_files (
-//    char* path        /* Start node to be scanned (***also used as work area***) */
-//)
-//{
-//    FRESULT res;
-//    DIR dir;
-//    UINT i;
-//    static FILINFO fno;
-//
-//
-//    res = f_opendir(&dir, path);                       /* Open the directory */
-//    if (res == FR_OK) {
-//        for (;;) {
-//            res = f_readdir(&dir, &fno);                   /* Read a directory item */
-//            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-//            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
-//                i = strlen(path);
-//                sprintf(&path[i], "/%s", fno.fname);
-//                res = scan_files(path);                    /* Enter the directory */
-//                if (res != FR_OK) break;
-//                path[i] = 0;
-//            } else {                                       /* It is a file. */
-//                printf("%s%s\n", path, fno.fname);
-//            }
-//        }
-//        f_closedir(&dir);
-//    }
-//
-//    return res;
-//}
+
 
 int main(void)
 {
@@ -127,85 +98,14 @@ int main(void)
 //	  scheduler_add_task(new eint_lab);
 //	char** list = (char**)malloc(20);
 //	scheduler_add_task(new sdcard(list));
-	scheduler_add_task(new sdcard);
+	scheduler_add_task(new sdcard(64));
 
-//	FATFS FatFs;
-//    FIL fil;        /* File object */
-//    char line[10]; /* Line buffer */
-//    FRESULT fr;     /* FatFs return code */
-//    static FILINFO fno;
+//	const char my_dev_addr = 0x27; // Your device address
+//		const char my_dev_reg = 0x01; // Write to 1st register of your device
+//		const char my_dev_data = 0xAB; // Write 0xAB to reg 0x01
+//		I2C2::getInstance().writeReg(my_dev_addr, my_dev_reg, my_dev_data);
 
-    /* Register work area to the default drive */
-//    f_mount(&FatFs, "1:", 0);
-
-    /* Open a text file */
-//    fr = f_open(&fil, "1:3Peg.mp3", FA_READ);
-//    if (fr) return (int)fr;
-
-    /* Read all lines and display it */
-//    int i =0;
-//    while (f_gets(line, sizeof line, &fil)) {
-//        printf(line);
-////        puts((char*) i);
-////        i++;
-////    }
-//       fr = f_stat("1:3Peg.mp3", &fno);
-//    switch (fr) {
-//
-//    case FR_OK:
-//        printf("Size: %lu\n", fno.fsize);
-//        printf("Timestamp: %u/%02u/%02u, %02u:%02u\n",
-//               (fno.fdate >> 9) + 1980, fno.fdate >> 5 & 15, fno.fdate & 31,
-//               fno.ftime >> 11, fno.ftime >> 5 & 63);
-//        printf("Attributes: %c%c%c%c%c\n",
-//               (fno.fattrib & AM_DIR) ? 'D' : '-',
-//               (fno.fattrib & AM_RDO) ? 'R' : '-',
-//               (fno.fattrib & AM_HID) ? 'H' : '-',
-//               (fno.fattrib & AM_SYS) ? 'S' : '-',
-//               (fno.fattrib & AM_ARC) ? 'A' : '-');
-//        break;
-//
-//    case FR_NO_FILE:
-//        printf("It is not exist.\n");
-//        break;
-//
-//    default:
-//        printf("An error occured. (%d)\n", fr);
-//    }
-
-    /* Close the file */
-//    f_close(&fil);
-
-//    FATFS fs;
-//    FRESULT res;
-//    char buff[256];
-//
-//
-//    res = f_mount(&fs, "1:", 1);
-//    if (res == FR_OK) {
-//        strcpy(buff, "1:");
-//        res = scan_files(buff);
-//    }
-
-    printf("Hello Rehan\n");
-
-//    uint8_t data[1000] = { 0 };
 //    Storage::read("1:3Peg.mp3", data, sizeof(data)-1);
-//
-//
-//	for (int i =0; i < 1000 ; i++)
-//	{
-//		if (i%4==0)
-//		{
-//			printf(" ");
-//		}
-//		if (i%64==0)
-//		{
-//			printf("\n");
-//		}
-//		printf("%02X", (unsigned char)data[i]);
-//
-//	}
 
 //	TaskHandle_t xTask1;
 //	TaskHandle_t xTask2;
@@ -216,10 +116,10 @@ int main(void)
 
 
 
-    scheduler_add_task(new terminalTask(PRIORITY_HIGH));
+//    scheduler_add_task(new terminalTask(PRIORITY_HIGH));
 
     /* Consumes very little CPU, but need highest priority to handle mesh network ACKs */
-    scheduler_add_task(new wirelessTask(PRIORITY_CRITICAL));
+ //   scheduler_add_task(new wirelessTask(PRIORITY_CRITICAL));
 
 //	vTaskStartScheduler();
 
