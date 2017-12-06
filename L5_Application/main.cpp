@@ -33,15 +33,16 @@
 #include "uart0_min.h"
 #include "stdio.h"
 #include "sdcard.h"
-//extern "C"{
 #include "ff.h"
 #include "io.hpp"
 #include "storage.hpp"
 #include "string.h"
 #include "i2c2.hpp"
 
-//}//#include "ffconf.h"
 
+char** songlist = (char**)malloc(30*sizeof(char*));			//array where all the song names will be stored
+char** songpathlist = (char**)malloc(30*sizeof(char*));
+uint8_t songlistsize =0;			//size of the songlist
 
 
 /**
@@ -58,25 +59,6 @@
  *        In either case, you should avoid using this bus or interfacing to external components because
  *        there is no semaphore configured for this bus and it should be used exclusively by nordic wireless.
  */
-
-void Task1(void *p)
-{
-	while(1)
-	{
-		uart0_puts("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-		vTaskDelay(50);
-	}
-}
-
-void Task2(void *p)
-{
-	while(1)
-	{
-		uart0_puts("bbbbbbbbbbbbbbbb");
-		vTaskDelay(50);
-	}
-}
-
 
 int main(void)
 {
@@ -98,7 +80,7 @@ int main(void)
 //	  scheduler_add_task(new eint_lab);
 //	char** list = (char**)malloc(20);
 //	scheduler_add_task(new sdcard(list));
-	scheduler_add_task(new sdcard(64));
+	scheduler_add_task(new sdcard(64, &songlistsize,songlist, songpathlist));
 
 //	const char my_dev_addr = 0x27; // Your device address
 //		const char my_dev_reg = 0x01; // Write to 1st register of your device

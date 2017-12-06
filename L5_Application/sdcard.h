@@ -21,15 +21,42 @@ class sdcard : public scheduler_task
 public:
 //	sdcard(char** list): scheduler_task("sdcard", 2000, PRIORITY_HIGH) {  songlist = list;/* constructor code */
 //	printf("In sdcard constructor\n");};
-	sdcard(int size=0) : scheduler_task("sdcard", 2000, PRIORITY_HIGH) {printf("In sdcard constructor\n"); buffersize = size;};
+	sdcard(int bsize=0, uint8_t* slsize=NULL, char** slist=NULL, char** splist=NULL ) : scheduler_task("sdcard", 2000, PRIORITY_HIGH)
+	{
+		printf("In sdcard constructor\n");
+		buffersize = bsize;
+		songlistsize=slsize;
+		songlist= slist;
+		songpathlist=splist;
+		result = FR_OK;
+	};
 
+    void opensongfile(uint8_t songnumber);
+    void readsong();
+    void closesongfile(uint8_t songnumber);
+    FRESULT scan_files (char* path);
 
     bool init(void);
     bool run(void *p);
 private:
-    char** songlist= NULL;
+    char** songlist;
+    char** songpathlist;
     int buffersize;
-//    FRESULT scan_files (char* path);
+    uint8_t *songlistsize;
+
+    FIL fil ;        /* File object */
+    FRESULT result;     /* FatFs return code */
+    static FILINFO finfo ;
+
+    UINT offset = 0;
+
+    uint8_t endReadeSize = 0;//totalsize%buffersize;
+    uint8_t loopsize = 0;//totalsize/buffersize;
+//    uint8_t data[buffersize] = { 0 };
+    uint8_t data[512] = { 0 };
+
+    uint8_t * songsendbuffer = (uint8_t*)malloc(sizeof(uint8_t)*32);
+
 
 
 };

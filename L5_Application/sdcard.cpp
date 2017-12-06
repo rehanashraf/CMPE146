@@ -7,7 +7,7 @@
 
 #include "sdcard.h"
 
-FRESULT scan_files (
+FRESULT sdcard::scan_files (
     char* path        /* Start node to be scanned (***also used as work area***) */
 )
 {
@@ -29,7 +29,20 @@ FRESULT scan_files (
                 if (res != FR_OK) break;
                 path[i] = 0;
             } else {                                       /* It is a file. */
-                printf("%s%s\n", path, fno.fname);
+            	uint8_t size = strlen(fno.fname);
+//            	printf("%s%s\n", path, fno.fname);
+            	if (fno.fname[size-1] == '3' && fno.fname[size-2] == 'P' && fno.fname[size-3] == 'M'  && fno.fname[0] != '_')
+            	{
+            		char * songname = (char*)malloc(strlen(fno.fname));
+            		sprintf(songname, fno.fname);
+            		songlist[*songlistsize] = songname;
+
+            		char * songpath = (char*)malloc(strlen(path));
+            		sprintf(songpath, path);
+            		songpathlist[*songlistsize] = path;
+
+            		*songlistsize +=1;
+            	}
             }
         }
         f_closedir(&dir);
@@ -41,42 +54,67 @@ FRESULT scan_files (
 
 bool sdcard::init(void)
 {
-
-
-    FIL fil;        /* File object */
-//    FRESULT res;     /* FatFs return code */
-    static FILINFO fno;
-//    FATFS fs;
     char path[256];
-//    res = f_mount(&fs, "1:", 1);
-//    if (res == FR_OK) {
-        strcpy(path, "1:");
-//        res = scan_files(path);
+    strcpy(path, "1:");
+//    result = scan_files(path);
 
+
+
+    FRESULT rehan;
+    FIL newfile;
+    FILINFO newfileinfo;
+    rehan = f_open(&newfile, "1:newtext.txt", FA_READ);
+    if (rehan == FR_OK)
+    {
+    	printf("file opened sucessfully.\n");
+    }
+//    rehan = f_stat("1:newtext.txt", &newfileinfo);
+    printf("size is %u. \n", newfile.fsize);
+
+    char newarray[512];
+    int toreadsize = 512;
+    UINT readsize =0;
+    rehan = f_read(&newfile, newarray, toreadsize, &readsize);
+    printf("Length of the newarray is %i \n", strlen(newarray));
+    if (rehan == FR_OK)
+    {	printf("Data read successful.\n");}
+    printf("Total bytes read are %u. \n", readsize);
+    printf("Data read is\n");
+    for (uint8_t i = 0; i < strlen(newarray); i++)
+    {
+   		printf("%02X", newarray[i]);
+ //   		printf("%c", newarray[i]);
+   }
+//    f_close(&newfile);
 //    }
-    FRESULT fr;
-    fr = f_stat("1:3Peg.mp3", &fno);
-    long int totalsize = fno.fsize;
+//    FRESULT fr;
+//    fr = f_stat("1:3Peg.mp3", &finfo);
+//    long int totalsize = finfo.fsize;
 //    int totalsize = 1024;
-    printf("total size of the file is %i. \n", totalsize);
-    printf("buffersize is %i.\n", buffersize);
-	uint8_t data[buffersize] = { 0 };
-	    fr = f_open(&fil, "1:3Peg.mp3", FA_READ);
+//    printf("total size of the file is %i. \n", totalsize);
+//    printf("buffersize is %i.\n", buffersize);
+//	uint8_t data[buffersize] = { 0 };
+//	fr = f_open(&fil, "1:3PEGNE~1.MP3", FA_READ);
+//	    if (fr == FR_OK)
+//	    {
+//	    	printf("File opend sucessfully\n");
+//	    	while(1);
+//	    }
 //	    Storage::read("1:newtext.txt", data, sizeof(data)-1);
-	    UINT size=0;
-	    UINT offset = 0;
-	    int endReadeSize = totalsize%buffersize;
-	    int loopsize = totalsize/buffersize;
-	    int readsize = buffersize;
-	    for(int i = 0; i < loopsize +1 ; i++)
-	    {
-	    	f_lseek(&fil, offset);
+//	    UINT size=0;
+//	    UINT offset = 0;
+//	    int endReadeSize = totalsize%buffersize;
+//	    int loopsize = totalsize/buffersize;
+//	    int readsize = buffersize;
+//	    for(int i = 0; i < loopsize +1 ; i++)
+//	    {
+//	    	f_lseek(&fil, offset);
 //	    	printf("offset is %u, \n", offset);
-	    	f_read(&fil,data, readsize, &size);
-	    	char hhh;
+//	    	f_read(&fil,data, readsize, &size);
+//	    	char hhh;
 //	    	printf("size is %u.\n", size);
-	    		    		for (UINT j =0; j < size ; j++)
-	    		    		{
+//	    		    		for (UINT j =0; j < size ; j++)
+//	    		    		{
 //	    		    			if (j%4==0)
 //	    		    			{
 ////	    		    				printf(" ");
@@ -91,72 +129,14 @@ bool sdcard::init(void)
 //	    		    			}
 ////	    		    			printf("%02X", (unsigned char)data[j]);
 //	    		    			sprintf(&hhh, "%02X", data[j]);
-	    		    			hhh = data[j];
-	    		    			Storage::append("1:myfile1.txt", &hhh, 1, 0);
-	    		    		}
-	    		    offset += buffersize;
-
-	    }
-	    printf("Writing data is done. \n");
-	    f_close(&fil);
-//	    for(int j =0; j < 1; j ++)
-//	    {
-//	    		for (int i =0; i < 512 ; i++)
-//	    		{
-//	    			if (i%4==0)
-//	    			{
-//	    				printf(" ");
-//	    			}
-//	    			if (i%64==0)
-//	    			{
-//	    				printf("\n");
-//	    			}
-//	    			printf("%02X", (unsigned char)data[i]);
-//	    		}
+//	    		    			hhh = data[j];
+//	    		    			Storage::append("1:myfile1.txt", &hhh, 1, 0);
+//	    		    		}
+//	    		    offset += buffersize;
+//	    		    printf("Loop is %i. \n", i);
 //	    }
-
-//	//    FIL fil;        /* File object */
-//	    char line[10]; /* Line buffer */
-//	    FRESULT fr;     /* FatFs return code */
-//	//    static FILINFO fno;
-//	    fr = f_open(&fil, "1:3Peg.mp3", FA_READ);
-//	    if (fr) return (int)fr;
-//
-//	    /* Read all lines and display it */
-////	    int i =0;
-//	    while (f_gets(line, sizeof line, &fil)) {
-//    		for (int i =0; i < 10 ; i++)
-//    		{
-//    			if (i%4==0)
-//    			{
-//    				printf(" ");
-//    			}
-//    			if (i%64==0)
-//    			{
-//    				printf("\n");
-//    			}
-//    			printf("%02X", (unsigned char)line[i]);
-//
-//    		}
-//	        printf(line);
-//	        puts((char*) i);
-//	        i++;
-//	    }
-//	    fr = f_stat("1:3Peg.mp3", &fno);
-//	    f_gets(line, 1000, &fil);
-//	    		for (int i =0; i < 900 ; i++)
-//	    		{
-//	    			if (i%4==0)
-//	    			{
-//	    				printf(" ");
-//	    			}
-//	    			if (i%64==0)
-//	    			{
-//	    				printf("\n");
-//	    			}
-//	    			printf("%02X", (unsigned char)line[i]);
-//
-//	    		}
+//	    printf("Writing data is done. \n");
+//	    f_close(&fil);
 	return true;
 
 }
@@ -167,9 +147,40 @@ bool sdcard::run(void *p)
 	return true;
 }
 
-void getsonglist()
+void sdcard::opensongfile(uint8_t songnumber)
 {
+	char songpathbuffer[strlen(songlist[songnumber])+strlen(songpathlist[songnumber])];
+	sprintf(songpathbuffer,songlist[songnumber],songpathlist[songnumber]);
+    if((result = f_open(&fil, songpathbuffer, FA_READ)) == FR_OK)
+    		{
+    		printf("%s opened successfully.\n", songlist[songnumber]);
+    		}
+//    result= f_stat(songpathbuffer, &finfo);
+    long int totalsize = fil.fsize;
+    endReadeSize = totalsize%buffersize;
+    loopsize = totalsize/buffersize;
 
 }
+void sdcard::closesongfile(uint8_t songnumber)
+{
+    if((result = f_close(&fil)) == FR_OK)
+    		{
+    			printf("%s opened successfully.\n", songlist[songnumber]);
+    		}
+    endReadeSize = 0;
+    loopsize =0;
+    offset = 0;
+}
+void sdcard::readsong()
+{
+	UINT size = 0 ;
+	uint8_t readsize = buffersize;
+	if(offset >= loopsize * buffersize)
+		readsize = endReadeSize;
+	f_lseek(&fil, offset);
+	f_read(&fil,data, endReadeSize, &size);
+	offset += buffersize;
+}
+
 
 

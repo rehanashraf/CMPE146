@@ -2554,6 +2554,7 @@ FRESULT f_read (
 	UINT* br		/* Pointer to number of bytes read */
 )
 {
+	printf("The bytes read will be %u\n", btr);
 	FRESULT res;
 	DWORD clst, sect, remain;
 	UINT rcnt, cc;
