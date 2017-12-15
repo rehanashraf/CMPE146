@@ -90,16 +90,26 @@ FRESULT Storage::read(const char* pFilename,  void* pData, unsigned int bytesToR
     FRESULT status = FR_INT_ERR;
     FIL file;
     unsigned int bytesRead = 0;
+ //   printf("offset in read function is %u\n", offset);
 
     // Open Existing file
     if (FR_OK == (status = f_open(&file, pFilename, FA_OPEN_EXISTING | FA_READ)))
     {
         if(offset) {
             f_lseek(&file, offset);
+
         }
         status = f_read(&file, pData, bytesToRead, &bytesRead);
-        f_close(&file);
+//        f_close(&file);
     }
+//    else if (0 == bytesRead)
+//    {
+//    		f_close(&file);
+//    }
+//    else
+//    {
+//    		puts("Something went wrong!\n");
+//    }
 
     return status;
 }

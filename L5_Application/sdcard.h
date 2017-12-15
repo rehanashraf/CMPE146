@@ -15,26 +15,35 @@
 #include "ff.h"
 #include "string.h"
 #include "storage.hpp"
+#include "songnames.h"
+
+song_info_S* get_all_song_info_arry(void);
+uint8_t get_total_songs(void);
+
 
 class sdcard : public scheduler_task
 {
 public:
-//	sdcard(char** list): scheduler_task("sdcard", 2000, PRIORITY_HIGH) {  songlist = list;/* constructor code */
-//	printf("In sdcard constructor\n");};
-	sdcard(int bsize=0, uint8_t* slsize=NULL, char** slist=NULL, char** splist=NULL ) : scheduler_task("sdcard", 2000, PRIORITY_HIGH)
-	{
-		printf("In sdcard constructor\n");
-		buffersize = bsize;
-		songlistsize=slsize;
-		songlist= slist;
-		songpathlist=splist;
-		result = FR_OK;
+	sdcard(): scheduler_task("sdcard", 2000, PRIORITY_HIGH) {
+//		songlist = list;/* constructor code */
+//	printf("In sdcard constructor\n");
 	};
+//	sdcard(int bsize=0, uint8_t* slsize=NULL, char** slist=NULL, char** splist=NULL ) : scheduler_task("sdcard", 2000, PRIORITY_HIGH)
+//	{
+//		printf("In sdcard constructor\n");
+//		buffersize = bsize;
+//		songlistsize=slsize;
+//		songlist= slist;
+//		songpathlist=splist;
+//		result = FR_OK;
+//	};
+
 
     void opensongfile(uint8_t songnumber);
     void readsong();
     void closesongfile(uint8_t songnumber);
     FRESULT scan_files (char* path);
+
 
     bool init(void);
     bool run(void *p);
@@ -55,10 +64,9 @@ private:
 //    uint8_t data[buffersize] = { 0 };
     uint8_t data[512] = { 0 };
 
-    uint8_t * songsendbuffer = (uint8_t*)malloc(sizeof(uint8_t)*32);
-
-
+//    uint8_t * songsendbuffer = (uint8_t*)malloc(sizeof(uint8_t)*32);
 
 };
+
 
 #endif /* L5_APPLICATION_SDCARD_H_ */

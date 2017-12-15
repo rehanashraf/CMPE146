@@ -77,7 +77,7 @@ class Storage
          * @param bytesToRead Number of bytes to read
          * @param offset      Optional Parameter: file offset to read data from
          */
-        static FRESULT read(const char* pFilename,  void* pData, unsigned int bytesToRead, unsigned int offset=0);
+        static FRESULT read(const char* pFilename,  void* pData, unsigned int bytesToRead, unsigned int offset);
 
         /**
          * Writes an existing file.

@@ -23,13 +23,13 @@
  * 			@see L0_LowLevel/lpc_sys.h if you wish to override printf/scanf functions.
  *
  */
-#include <gpiolab.h>
-#include <spilab.h>
+//#include <gpiolab.h>
+//#include <spilab.h>
 #include "tasks.hpp"
 #include "examples/examples.hpp"
-#include "uartlab.h"
-#include "eintlab.h"
-#include "i2clab.h"
+//#include "uartlab.h"
+//#include "eintlab.h"
+//#include "i2clab.h"
 #include "uart0_min.h"
 #include "stdio.h"
 #include "sdcard.h"
@@ -38,11 +38,13 @@
 #include "storage.hpp"
 #include "string.h"
 #include "i2c2.hpp"
+#include "mp3Decoder.h"
+#include "eint.h"
 
-
+//
 char** songlist = (char**)malloc(30*sizeof(char*));			//array where all the song names will be stored
 char** songpathlist = (char**)malloc(30*sizeof(char*));
-uint8_t songlistsize =0;			//size of the songlist
+uint8_t songlistsize = 0;			//size of the songlist
 
 
 /**
@@ -62,116 +64,18 @@ uint8_t songlistsize =0;			//size of the songlist
 
 int main(void)
 {
-    /**
-     * A few basic tasks for this bare-bone system :
-     *      1.  Terminal task provides gateway to interact with the board through UART terminal.
-     *      2.  Remote task allows you to use remote control to interact with the board.
-     *      3.  Wireless task responsible to receive, retry, and handle mesh network.
-     *
-     * Disable remote task if you are not using it.  Also, it needs SYS_CFG_ENABLE_TLM
-     * such that it can save remote control codes to non-volatile memory.  IR remote
-     * control codes can be learned by typing the "learn" terminal command.
-     */
+	eint3_enable_port2(4, eint_falling_edge, MP3_decr_vol_handler);
+	eint3_enable_port2(5, eint_falling_edge, MP3_incr_vol_handler);
+	eint3_enable_port2(6, eint_falling_edge, MP3_prev_song_handler);
+	eint3_enable_port2(3, eint_falling_edge, MP3_next_song_handler);
+	eint3_enable_port2(2, eint_falling_edge, MP3_play_handler);
 
-//    scheduler_add_task(new gpio_lab_demo);
-//    scheduler_add_task(new spi_lab);
-//    scheduler_add_task(new uart_lab);
-// 	  scheduler_add_task(new i2c_lab);
-//	  scheduler_add_task(new eint_lab);
-//	char** list = (char**)malloc(20);
-//	scheduler_add_task(new sdcard(list));
-	scheduler_add_task(new sdcard(64, &songlistsize,songlist, songpathlist));
-
-//	const char my_dev_addr = 0x27; // Your device address
-//		const char my_dev_reg = 0x01; // Write to 1st register of your device
-//		const char my_dev_data = 0xAB; // Write 0xAB to reg 0x01
-//		I2C2::getInstance().writeReg(my_dev_addr, my_dev_reg, my_dev_data);
-
-//    Storage::read("1:3Peg.mp3", data, sizeof(data)-1);
-
-//	TaskHandle_t xTask1;
-//	TaskHandle_t xTask2;
-//	xTaskCreate(Task1, "task1", STACK_BYTES(2048), 0, 1, 0);
-//	xTaskCreate(Task2, "task2", STACK_BYTES(2048), 0, 1, 0);
-
-
-
-
-
-//    scheduler_add_task(new terminalTask(PRIORITY_HIGH));
-
-    /* Consumes very little CPU, but need highest priority to handle mesh network ACKs */
- //   scheduler_add_task(new wirelessTask(PRIORITY_CRITICAL));
-
-//	vTaskStartScheduler();
-
-    /* Change "#if 0" to "#if 1" to run period tasks; @see period_callbacks.cpp */
-    #if 0
-    scheduler_add_task(new periodicSchedulerTask());
-    #endif
-
-    /* The task for the IR receiver */
-     scheduler_add_task(new remoteTask  (PRIORITY_LOW));
-
-    /* Your tasks should probably used PRIORITY_MEDIUM or PRIORITY_LOW because you want the terminal
-     * task to always be responsive so you can poke around in case something goes wrong.
-     */
-
-    /**
-     * This is a the board demonstration task that can be used to test the board.
-     * This also shows you how to send a wireless packets to other boards.
-     */
-    #if 0
-        scheduler_add_task(new example_io_demo());
-    #endif
-
-    /**
-     * Change "#if 0" to "#if 1" to enable examples.
-     * Try these examples one at a time.
-     */
-    #if 0
-        scheduler_add_task(new example_task());
-        scheduler_add_task(new example_alarm());
-        scheduler_add_task(new example_logger_qset());
-        scheduler_add_task(new example_nv_vars());
-    #endif
-
-    /**
-	 * Try the rx / tx tasks together to see how they queue data to each other.
-	 */
-    #if 0
-        scheduler_add_task(new queue_tx());
-        scheduler_add_task(new queue_rx());
-    #endif
-
-    /**
-     * Another example of shared handles and producer/consumer using a queue.
-     * In this example, producer will produce as fast as the consumer can consume.
-     */
-    #if 0
-        scheduler_add_task(new producer());
-        scheduler_add_task(new consumer());
-    #endif
-
-    /**
-     * If you have RN-XV on your board, you can connect to Wifi using this task.
-     * This does two things for us:
-     *   1.  The task allows us to perform HTTP web requests (@see wifiTask)
-     *   2.  Terminal task can accept commands from TCP/IP through Wifly module.
-     *
-     * To add terminal command channel, add this at terminal.cpp :: taskEntry() function:
-     * @code
-     *     // Assuming Wifly is on Uart3
-     *     addCommandChannel(Uart3::getInstance(), false);
-     * @endcode
-     */
-    #if 0
-        Uart3 &u3 = Uart3::getInstance();
-        u3.init(WIFI_BAUD_RATE, WIFI_RXQ_SIZE, WIFI_TXQ_SIZE);
-        scheduler_add_task(new wifiTask(Uart3::getInstance(), PRIORITY_LOW));
-    #endif
+	scheduler_add_task(new sdcard);
+	scheduler_add_task(new mp3Decoder);
+    scheduler_add_task(new terminalTask(PRIORITY_HIGH));
 
     scheduler_start(); ///< This shouldn't return
+
     return -1;
 }
 

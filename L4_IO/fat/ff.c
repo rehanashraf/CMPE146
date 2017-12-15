@@ -2554,7 +2554,7 @@ FRESULT f_read (
 	UINT* br		/* Pointer to number of bytes read */
 )
 {
-	printf("The bytes read will be %u\n", btr);
+//	printf("The bytes read will be %u\n", btr);
 	FRESULT res;
 	DWORD clst, sect, remain;
 	UINT rcnt, cc;
@@ -2997,6 +2997,7 @@ FRESULT f_lseek (
 	DWORD ofs		/* File pointer from top of file */
 )
 {
+//	printf("offset is %u in s_lseek\n", ofs);
 	FRESULT res;
 
 
